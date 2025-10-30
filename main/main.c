@@ -1,102 +1,89 @@
+#include <stdbool.h>
 #include <stdio.h>
-#include "driver/gpio.h"
+#include <stdlib.h>
+#include <time.h>
+#include "sdkconfig.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "sdkconfig.h"
-
-#include "driver/ledc.h"
 #include "esp_err.h"
 
-#define RED_GPIO 	(25)
-#define GREEN_GPIO 	(26)
-#define BLUE_GPIO 	(27)
+#include "hsv_to_rgb.h"
+#include "ledc_config.h"
+#include "led_effects.h"
+#include "utils.h"
+#include "colors.h"
 
-#define RED_CHANNEL		LEDC_CHANNEL_0
-#define GREEN_CHANNEL	LEDC_CHANNEL_1
-#define BLUE_CHANNEL	LEDC_CHANNEL_2
+#define COLOR_TIME	(2500)
 
-#define SPEED_MODE	LEDC_LOW_SPEED_MODE
-#define TIMER		LEDC_TIMER_0
-#define DUTY_RES	LEDC_TIMER_8_BIT
-#define FREQ_HZ		(5000)
+void app_main (void) {
+	srand(time(NULL));
+	configure_ledc();
 
-#define DELAY_MS	(20)
+    int option = 0;
+	while (true) {
+		printf("Opção {%d}: ", option);
 
-#define TRUE		(1)
-#define FALSE		(0)
+		switch (option) {
+		case 0:
+			printf("Efeito - Fade (Roda de cores)\n");
+			effect_fade();
+			effect_fade();
+			break;
+		case 1:
+			printf("Efeito - Strobe\n");
+			effect_strobe();
+			effect_strobe();
+			break;
+		case 2:
+			printf("Efeito - Breath\n");
+			effect_breath();
+			effect_breath();
+			break;
+		case 3:
+			printf("Demonstração de cores:\n");
 
-void configure_ledc_channel (ledc_channel_t channel, int gpio_num)
-{
-	ledc_channel_config_t ledc_channel = {
-		.speed_mode		= SPEED_MODE,
-		.channel		= channel,
-		.timer_sel		= TIMER,
-		.intr_type		= LEDC_INTR_DISABLE,
-		.gpio_num		= gpio_num,
-		.duty			= 0,
-		.hpoint			= 0
-	};
+			printf("Preto:   RGB(%d, %d, %d)\n", BLACK_RGB.r, BLACK_RGB.g, BLACK_RGB.b);
+			stationary_color(&BLACK_RGB);
+            vTaskDelay(COLOR_TIME / portTICK_PERIOD_MS);
 
-	ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
-}
+			printf("Vermelho:   RGB(%d, %d, %d)\n", RED_RGB.r, RED_RGB.g, RED_RGB.b);
+			stationary_color(&RED_RGB);
+            vTaskDelay(COLOR_TIME / portTICK_PERIOD_MS);
 
-void update_duty (ledc_channel_t channel, int duty) {
-	ESP_ERROR_CHECK(ledc_set_duty(SPEED_MODE, channel, duty));
-	ESP_ERROR_CHECK(ledc_update_duty(SPEED_MODE, channel));
-}
+			printf("Amarelo:    RGB(%d, %d, %d)\n", YELLOW_RGB.r, YELLOW_RGB.g, YELLOW_RGB.b);
+			stationary_color(&YELLOW_RGB);
+            vTaskDelay(COLOR_TIME / portTICK_PERIOD_MS);
 
-void app_main (void)
-{
-	ledc_timer_config_t ledc_timer = {
-		.speed_mode			= SPEED_MODE,
-		.timer_num			= TIMER,
-		.duty_resolution	= DUTY_RES,
-		.freq_hz			= FREQ_HZ,
-		.clk_cfg			= LEDC_AUTO_CLK
-	};
+			printf("Verde:      RGB(%d, %d, %d)\n", GREEN_RGB.r, GREEN_RGB.g, GREEN_RGB.b);
+			stationary_color(&GREEN_RGB);
+            vTaskDelay(COLOR_TIME / portTICK_PERIOD_MS);
 
-	ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer));
+			printf("Ciano:      RGB(%d, %d, %d)\n", CYAN_RGB.r, CYAN_RGB.g, CYAN_RGB.b);
+			stationary_color(&CYAN_RGB);
+            vTaskDelay(COLOR_TIME / portTICK_PERIOD_MS);
 
-	configure_ledc_channel(RED_CHANNEL, RED_GPIO);
-	configure_ledc_channel(GREEN_CHANNEL, GREEN_GPIO);
-	configure_ledc_channel(BLUE_CHANNEL, BLUE_GPIO);
-	
-	int red_duty_value = 254;
-	int green_duty_value = 0;
-	int blue_duty_value = 0;
+			printf("Azul:       RGB(%d, %d, %d)\n", BLUE_RGB.r, BLUE_RGB.g, BLUE_RGB.b);
+			stationary_color(&BLUE_RGB);
+            vTaskDelay(COLOR_TIME / portTICK_PERIOD_MS);
 
-	while (TRUE) {
-		update_duty(RED_CHANNEL, red_duty_value);
-		vTaskDelay(DELAY_MS / portTICK_PERIOD_MS);
-		
-		for (; green_duty_value < 255; green_duty_value ++) {
-			update_duty(GREEN_CHANNEL, green_duty_value);
-			vTaskDelay(DELAY_MS / portTICK_PERIOD_MS);
-		}
-		
-		for (; red_duty_value >= 0; red_duty_value --) {
-			update_duty(RED_CHANNEL, red_duty_value);
-			vTaskDelay(DELAY_MS / portTICK_PERIOD_MS);
-		}
+			printf("Violeta:    RGB(%d, %d, %d)\n", VIOLET_RGB.r, VIOLET_RGB.g, VIOLET_RGB.b);
+			stationary_color(&VIOLET_RGB);
+            vTaskDelay(COLOR_TIME / portTICK_PERIOD_MS);
 
-		for (; blue_duty_value < 255; blue_duty_value ++) {
-			update_duty(BLUE_CHANNEL, blue_duty_value);
-			vTaskDelay(DELAY_MS / portTICK_PERIOD_MS);
-		}
+			printf("Branco:     RGB(%d, %d, %d)\n", WHITE_RGB.r, WHITE_RGB.g, WHITE_RGB.b);
+			stationary_color(&WHITE_RGB);
+            vTaskDelay(COLOR_TIME / portTICK_PERIOD_MS);
+            break;
+		default:
+			hsv_color_t hsv_color = normalize_hsv(rand_float(0, 100), rand_float(0, 100), rand_float(0, 100));
+			rgb_color_t rgb_color = hsv_to_rgb(hsv_color.h, hsv_color.s, hsv_color.v);
+			stationary_color(&rgb_color);
 
-		for (; green_duty_value >= 0; green_duty_value --) {
-			update_duty(GREEN_CHANNEL, green_duty_value);
-			vTaskDelay(DELAY_MS / portTICK_PERIOD_MS);
+			printf("Cor: HSV(%.2f, %.2f, %.2f) -> RGB(%d, %d, %d)\n", hsv_color.h, hsv_color.s, hsv_color.v, rgb_color.r, rgb_color.g, rgb_color.b);
+			vTaskDelay(COLOR_TIME / portTICK_PERIOD_MS);
+			break;
 		}
 
-		for (; red_duty_value < 255; red_duty_value ++) {
-			update_duty(RED_CHANNEL, red_duty_value);
-			vTaskDelay(DELAY_MS / portTICK_PERIOD_MS);
-		}
-
-		for (; blue_duty_value >= 0; blue_duty_value --) {
-			update_duty(BLUE_CHANNEL, blue_duty_value);
-			vTaskDelay(DELAY_MS / portTICK_PERIOD_MS);
-		}		
+        option = (option + 1) % 10;
 	}
 }

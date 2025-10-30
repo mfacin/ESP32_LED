@@ -3,18 +3,7 @@
 
 #include <math.h>
 #include <stdio.h>
-
-typedef struct {
-	unsigned char r;
-    unsigned char g;
-    unsigned char b;
-} rgb_color_t;
-
-typedef struct {
-	float h;
-	float s;
-	float v;
-} hsv_color_t;
+#include "colors.h"
 
 /*
  * Normalização dos dados recebidos pelo SmartThings
