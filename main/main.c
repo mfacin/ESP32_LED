@@ -22,8 +22,8 @@
 
 #define DELAY_MS	(20)
 
-#define TRUE	(1)
-#define FALSE	(0)
+#define TRUE		(1)
+#define FALSE		(0)
 
 void configure_ledc_channel (ledc_channel_t channel, int gpio_num)
 {
