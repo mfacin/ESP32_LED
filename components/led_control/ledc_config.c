@@ -19,11 +19,6 @@ void configure_ledc_channel (ledc_channel_t channel, int gpio_num)
 	ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
 }
 
-void update_duty (ledc_channel_t channel, int duty) {
-	ESP_ERROR_CHECK(ledc_set_duty(SPEED_MODE, channel, duty));
-	ESP_ERROR_CHECK(ledc_update_duty(SPEED_MODE, channel));
-}
-
 void configure_ledc () {
 	ledc_timer_config_t ledc_timer = {
 		.speed_mode			= SPEED_MODE,

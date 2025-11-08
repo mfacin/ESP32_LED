@@ -2,29 +2,17 @@
 #include <math.h>
 #include "colors.h"
 
-/*
- * Normalização dos dados recebidos pelo SmartThings
- * H: 0.0 - 100.0 (porcentagem) -> 0.0 - 360.0 (graus)
- * S: 0.0 - 100.0 (porcentagem) -> 0.0 - 1.0 (porcentavem)
- * V: 0.0 - 100.0 (porcentagem) -> 0.0 - 1.0 (porcentavem)
- */
 hsv_color_t normalize_hsv(float h, float s, float v) {
 	hsv_color_t normalized_hsv = {
 		.h = (trunc(h * 100) / 10000) * 360,
 		.s = trunc(s) / 100.0,
-		.v = trunc(s) / 100.0
+		.v = trunc(v) / 100.0
 	};
 
 	return normalized_hsv;
 }
 
-/*
- * Conversão de HSV para RGB
- * H: 0.0 - 360.0 (graus)
- * S: 0.0 - 1.0   (porcentagem)
- * V: 0.0 - 1.0   (porcentagem)
- */
-rgb_color_t hsv_to_rgb(float h, float s, float v) {
+rgb_color_t hsv_to_rgb(hsv_color_t hsv_color) {
 	/* 
 	 * https://en.wikipedia.org/wiki/HSL_and_HSV#HSV_to_RGB
 	 *
@@ -45,6 +33,7 @@ rgb_color_t hsv_to_rgb(float h, float s, float v) {
 	 * 6. m = V - C
 	 * 7. (R, G, B) = (R1 + m, G1 + m, B1 + m)
 	 */
+	float h = hsv_color.h, s = hsv_color.s, v = hsv_color.v;
 
 	// 1. Validando se os dados estão dentro dos limites
 	if (h > 360) h = fmod(h, 360.0); 
