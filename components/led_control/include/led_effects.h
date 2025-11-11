@@ -6,7 +6,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "led_control.h"
-#include "app_config.h"
+#include "state_manager.h"
 
 /**
  * @brief Cor estacionária.

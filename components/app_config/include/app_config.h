@@ -1,8 +1,6 @@
 #ifndef APP_CONFIG_H
 #define APP_CONFIG_H
 
-#include "colors.h"
-
 /// @brief Quantidade de passos que o efeito breath dará em uma direção.
 #define BREATH_EFFECT_STEPS	(100.0)
 
@@ -30,34 +28,36 @@
 /// @brief Fator de correção do gama azul
 #define BLUE_GAMMA_CORRECTION	(1.0)
 
-/**
- * @brief Tipos de efeitos disponíveis.
- */
-typedef enum { EFFECT_STATIONARY, EFFECT_FADE, EFFECT_STROBE, EFFECT_BREATH } effect_type_t;
+/// @brief Configuração de GPIO do LED vermelho.
+#define RED_GPIO 	(25)
+/// @brief Configuração de GPIO do LED verde.
+#define GREEN_GPIO 	(26)
+/// @brief Configuração de GPIO do LED azul.
+#define BLUE_GPIO 	(27)
 
-/**
- * @brief Direção do efeito de breath.
- * @note BREATH_UP = aumentando o brilho;
- * @note BREATH_DOWN = diminuindo o brilho.
- */
-typedef enum { BREATH_UP = 1, BREATH_DOWN = -1 } effect_breath_direction_t;
+/// @brief Configuração de canal do LEDC do LED vermelho.
+#define RED_CHANNEL		LEDC_CHANNEL_0
+/// @brief Configuração de canal do LEDC do LED verde.
+#define GREEN_CHANNEL	LEDC_CHANNEL_1
+/// @brief Configuração de canal do LEDC do LED azul.
+#define BLUE_CHANNEL	LEDC_CHANNEL_2
 
-/**
- * @brief Configuração de efeitos.
- */
-typedef struct {
-	effect_type_t type; /**< Tipo de efeito. */
-	unsigned char speed; /**< Velocidade para mudanças de cores (0-100%). */
-	effect_breath_direction_t direction; /**< Direção do efeito (-1, 1). Utilizado no breath. */
-} effect_t;
+/// @brief Configuração de velocidade do LEDC.
+#define SPEED_MODE	LEDC_LOW_SPEED_MODE
+/// @brief Configuração de timer do LEDC.
+#define TIMER		LEDC_TIMER_0
+/// @brief Configuração de resolução de duty do LEDC.
+#define DUTY_RES	LEDC_TIMER_8_BIT
+/// @brief Configuração de frequeência do LEDC.
+#define FREQ_HZ		(5000)
 
-/**
- * @brief Configuração do estado atual da aplicação, indicando a cor, efeito, e brilho máximo.
- */
-typedef struct {
-	hsv_color_t current_color; /**< Cor atual. */
-	effect_t current_effect; /**< Efeito atual. */
-	float max_value; /**< Brilho máximo (componente value). */
-} app_state_t;
+/// @brief Namespace para as configurações de gama dos LEDs na NVS
+#define NVS_NAMESPACE "led_config"
+/// @brief Chave para o fator de correção do gama vermelho
+#define NVS_KEY_GAMMA_R "gamma_r"
+/// @brief Chave para o fator de correção do gama verde
+#define NVS_KEY_GAMMA_G "gamma_g"
+/// @brief Chave para o fator de correção do gama azul
+#define NVS_KEY_GAMMA_B "gamma_b"
 
 #endif

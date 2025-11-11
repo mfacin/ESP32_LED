@@ -6,6 +6,8 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_err.h"
+#include "esp_log.h"
+#include "nvs_flash.h"
 
 #include "hsv_to_rgb.h"
 #include "ledc_config.h"
@@ -13,6 +15,8 @@
 #include "utils.h"
 #include "colors.h"
 #include "app_config.h"
+#include "state_manager.h"
+#include "effect_handlers.h"
 
 /// @brief Estrutura para armazenamento dos delays dos efeitos.
 typedef struct {
@@ -27,20 +31,6 @@ static const effect_delays_t g_effect_delays[] = {
     [EFFECT_STROBE]     = {MAX_STROBE_DELAY, MIN_STROBE_DELAY},
     [EFFECT_BREATH]     = {MAX_BREATH_DELAY, MIN_BREATH_DELAY},
 };
-
-/// @brief Estado atual da aplicação, especificando a cor, efeito e brilho definidos.
-static app_state_t g_current_state = {
-	.current_color = { .h = 60, .s = 1, .v = 0.75 },
-	.current_effect = {
-		.type = EFFECT_STATIONARY,
-		.speed = 0.5,
-		.direction = BREATH_UP
-	},
-	.max_value = 0.75
-};
-
-/// @brief Mutex do estado da aplicação.
-static SemaphoreHandle_t g_app_state_mutex;
 
 /**
  * @brief Configura os campos do estado da aplicação de acordo com o novo efeito a ser iniciado.
@@ -62,13 +52,12 @@ void start_effect (app_state_t *current_state, effect_type_t effect_type, char s
  */
 void main_loop_task (void *param) {
 	int delay_ms = 0;
+	app_state_t *current_state = state_manager_get_state_pointer();
 
 	while (true) {
 		vTaskDelay(pdMS_TO_TICKS(delay_ms));
 
-		if (xSemaphoreTake(g_app_state_mutex, portMAX_DELAY) == pdTRUE) {
-			app_state_t *current_state = (app_state_t *) param;
-		
+		if (state_manager_lock_mutex() == pdTRUE) {		
 			if (current_state->current_color.v > current_state->max_value) {
 				current_state->current_color.v = current_state->max_value;
 			}
@@ -85,7 +74,7 @@ void main_loop_task (void *param) {
 				delay_ms = interpolate_speed_to_delay(current_state->current_effect.speed, delays->max_delay, delays->min_delay);
 			}
 
-			xSemaphoreGive(g_app_state_mutex);
+			state_manager_lock_mutex();
 		}
 	}
 }
@@ -94,10 +83,17 @@ void main_loop_task (void *param) {
  * @brief Função de entrada da aplicação.
  */
 void app_main (void) {
+	// Inicialização da NVS para Wi-Fi e state_manager.
+	esp_err_t ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+      ESP_ERROR_CHECK(nvs_flash_erase());
+      ret = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK(ret);
+
 	srand(time(NULL));
 	configure_ledc();
+	state_manager_init();
 
-	g_app_state_mutex = xSemaphoreCreateMutex();
-
-	xTaskCreate(main_loop_task, "main_loop_task", 4096, &g_current_state, 5, NULL);
+	xTaskCreate(main_loop_task, "main_loop_task", 4096, NULL, 5, NULL);
 }
