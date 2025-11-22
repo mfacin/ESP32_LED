@@ -8,11 +8,11 @@
 #define STATIONARY_DELAY	(1000)
 
 /// @brief Delay mínimo, em ms, do efeito de fade. Em suma, a velocidade máxima do efeito.
-#define MIN_FADE_DELAY		(1)
+#define MIN_FADE_DELAY		(10)
 /// @brief Delay mínimo, em ms, do efeito de strobe. Em suma, a velocidade máxima do efeito.
 #define MIN_STROBE_DELAY	(100)
 /// @brief Delay mínimo, em ms, do efeito de breath. Em suma, a velocidade máxima do efeito.
-#define MIN_BREATH_DELAY	(1)
+#define MIN_BREATH_DELAY	(10)
 
 /// @brief Delay máximo, em ms, do efeito de fade. Em suma, a velocidade mínima do efeito.
 #define MAX_FADE_DELAY		(100)
@@ -21,19 +21,19 @@
 /// @brief Delay máximo, em ms, do efeito de breath. Em suma, a velocidade mínima do efeito.
 #define MAX_BREATH_DELAY	(100)
 
-/// @brief Fator de correção do gama vermelho
-#define RED_GAMMA_CORRECTION	(1.0)
-/// @brief Fator de correção do gama verde
-#define GREEN_GAMMA_CORRECTION	(0.5)
-/// @brief Fator de correção do gama azul
-#define BLUE_GAMMA_CORRECTION	(1.0)
+/// @brief Fator de correção do gama vermelho.
+#define RED_GAMMA_CORRECTION	(1.00)
+/// @brief Fator de correção do gama verde.
+#define GREEN_GAMMA_CORRECTION	(0.45)
+/// @brief Fator de correção do gama azul.
+#define BLUE_GAMMA_CORRECTION	(0.31)
 
 /// @brief Configuração de GPIO do LED vermelho.
-#define RED_GPIO 	(25)
+#define RED_GPIO	(25)
 /// @brief Configuração de GPIO do LED verde.
-#define GREEN_GPIO 	(26)
+#define GREEN_GPIO	(26)
 /// @brief Configuração de GPIO do LED azul.
-#define BLUE_GPIO 	(27)
+#define BLUE_GPIO	(27)
 
 /// @brief Configuração de canal do LEDC do LED vermelho.
 #define RED_CHANNEL		LEDC_CHANNEL_0
@@ -51,13 +51,25 @@
 /// @brief Configuração de frequeência do LEDC.
 #define FREQ_HZ		(5000)
 
-/// @brief Namespace para as configurações de gama dos LEDs na NVS
-#define NVS_NAMESPACE "led_config"
-/// @brief Chave para o fator de correção do gama vermelho
-#define NVS_KEY_GAMMA_R "gamma_r"
-/// @brief Chave para o fator de correção do gama verde
-#define NVS_KEY_GAMMA_G "gamma_g"
-/// @brief Chave para o fator de correção do gama azul
-#define NVS_KEY_GAMMA_B "gamma_b"
+/// @brief Namespace para as configurações de gama dos LEDs na NVS.
+#define NVS_NAMESPACE	"led_config"
+/// @brief Chave para o fator de correção do gama vermelho.
+#define NVS_KEY_GAMMA_R	"gamma_r"
+/// @brief Chave para o fator de correção do gama verde.
+#define NVS_KEY_GAMMA_G	"gamma_g"
+/// @brief Chave para o fator de correção do gama azul.
+#define NVS_KEY_GAMMA_B	"gamma_b"
+/// @brief Chave para o efeito configurado.
+#define NVS_KEY_EFFECT	"effect"
+/// @brief Chave para a velocidade do efeito configurado.
+#define NVS_KEY_SPEED	"speed"
+/// @brief Chave para o valor de hue (matiz).
+#define NVS_KEY_HUE			"hue"
+/// @brief Chave para o valor de saturação.
+#define NVS_KEY_SATURATION	"saturation"
+/// @brief Chave para o valor de brilho.
+#define NVS_KEY_BRIGHTNESS	"brightness"
+/// @brief Chave para o status de ON/OFF.
+#define NVS_KEY_ONOFF	"onoff"
 
 #endif

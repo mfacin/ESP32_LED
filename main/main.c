@@ -33,21 +33,6 @@ static const effect_delays_t g_effect_delays[] = {
 };
 
 /**
- * @brief Configura os campos do estado da aplicação de acordo com o novo efeito a ser iniciado.
- * @param *current_state Ponteiro da estrutura de estado atual da aplicação.
- * @param effect_type O novo efeito a ser iniciado.
- * @param speed A velocidade do efeito.
- */
-void start_effect (app_state_t *current_state, effect_type_t effect_type, char speed) {
-	current_state->current_color.h = 0;
-	current_state->current_color.s = 0;
-	current_state->current_color.v = current_state->max_value;
-	current_state->current_effect.type = effect_type;
-	current_state->current_effect.speed = speed;
-	current_state->current_effect.direction = BREATH_UP;
-}
-
-/**
  * @brief Task principal do FreeRTOS, responsável por controlar os efeitos e cores atuais do LED.
  */
 void main_loop_task (void *param) {
@@ -55,27 +40,48 @@ void main_loop_task (void *param) {
 	app_state_t *current_state = state_manager_get_state_pointer();
 
 	while (true) {
-		vTaskDelay(pdMS_TO_TICKS(delay_ms));
+		if (state_manager_lock_mutex() == pdTRUE) {	
+			if (current_state->status == OFF) {
+				set_color(hsv_to_rgb(BLACK_HSV));
+				state_manager_unlock_mutex();
+				vTaskDelay(pdMS_TO_TICKS(STATIONARY_DELAY));
+				continue;
+			}
 
-		if (state_manager_lock_mutex() == pdTRUE) {		
 			if (current_state->current_color.v > current_state->max_value) {
 				current_state->current_color.v = current_state->max_value;
 			}
 			rgb_color_t selected_color = hsv_to_rgb(current_state->current_color);
-			rgb_color_t final_color = correct_led_gamma(selected_color, RED_GAMMA_CORRECTION, GREEN_GAMMA_CORRECTION, BLUE_GAMMA_CORRECTION);
+			rgb_color_t final_color = correct_led_gamma(selected_color, current_state->gamma_correction.gamma_r, current_state->gamma_correction.gamma_g, current_state->gamma_correction.gamma_b);
 			set_color(final_color);
-		
+			
 			effect_type_t effect_type = current_state->current_effect.type;
 			const effect_delays_t *delays = &g_effect_delays[effect_type];
-		
+			
 			if (effect_type == EFFECT_STATIONARY) {
 				delay_ms = delays->max_delay;
 			} else {
 				delay_ms = interpolate_speed_to_delay(current_state->current_effect.speed, delays->max_delay, delays->min_delay);
 			}
-
-			state_manager_lock_mutex();
+			
+			switch (current_state->current_effect.type) {
+				case EFFECT_FADE:
+				effect_fade(current_state);
+				break;
+				case EFFECT_STROBE:
+				effect_strobe(current_state);
+				break;
+				case EFFECT_BREATH:
+				effect_breath(current_state);
+				break;	
+				default:
+				break;
+			}
+			
+			state_manager_unlock_mutex();
 		}
+
+		vTaskDelay(pdMS_TO_TICKS(delay_ms));
 	}
 }
 
@@ -87,13 +93,22 @@ void app_main (void) {
 	esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
       ESP_ERROR_CHECK(nvs_flash_erase());
-      ret = nvs_flash_init();
+      ESP_ERROR_CHECK(nvs_flash_init());
     }
-    ESP_ERROR_CHECK(ret);
+
+	gpio_set_direction(GPIO_NUM_0, GPIO_MODE_INPUT);
+	gpio_set_pull_mode(GPIO_NUM_0, GPIO_PULLUP_ONLY);
+	vTaskDelay(pdMS_TO_TICKS(100));
+
+	// Caso o botão de BOOT esteja acionado na inicialização, ele apaga a NVS.
+	if (gpio_get_level(GPIO_NUM_0) == 0) {
+		ESP_LOGI("MAIN", "Apagando a NVS");
+		ESP_ERROR_CHECK(nvs_flash_erase());
+	}
 
 	srand(time(NULL));
 	configure_ledc();
 	state_manager_init();
 
-	xTaskCreate(main_loop_task, "main_loop_task", 4096, NULL, 5, NULL);
+	xTaskCreate(main_loop_task, "main_loop_task", 4096, NULL, 4, NULL);
 }

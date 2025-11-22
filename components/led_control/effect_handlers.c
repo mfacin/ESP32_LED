@@ -1,5 +1,8 @@
 #include "effect_handlers.h"
-#include "state_manager.h"
+
+void handle_on_off_change_command (effect_status_t is_on) {
+	state_manager_set_on_off(is_on);
+}
 
 void handle_effect_change_command (effect_type_t effect_type, unsigned char speed) {
 	effect_t new_effect = {

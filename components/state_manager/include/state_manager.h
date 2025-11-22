@@ -4,6 +4,11 @@
 #include "colors.h"
 
 /**
+ * @brief Status de ON/OFF.
+ */
+typedef enum { OFF, ON } effect_status_t;
+
+/**
  * @brief Tipos de efeitos disponíveis.
  */
 typedef enum { EFFECT_STATIONARY, EFFECT_FADE, EFFECT_STROBE, EFFECT_BREATH } effect_type_t;
@@ -37,6 +42,7 @@ typedef struct {
  * @brief Configuração do estado atual da aplicação, indicando a cor, efeito, e brilho máximo.
  */
 typedef struct {
+	effect_status_t status; /** Status de ON/OFF. */
 	hsv_color_t current_color; /**< Cor atual. */
 	effect_t current_effect; /**< Efeito atual. */
 	float max_value; /**< Brilho máximo (componente value). */
@@ -71,6 +77,12 @@ void state_manager_get_copy (app_state_t* out_state);
  * @param new_state Ponteiro para uma struct local com os dados do novo estado.
  */
 void state_manager_set_full_state (const app_state_t* new_state);
+
+/**
+ * @brief Define o status de ON/OFF
+ * @param status Novo status.
+ */
+void state_manager_set_on_off (effect_status_t status);
 
 /**
  * @brief Define os valores de hue (matiz) e saturação

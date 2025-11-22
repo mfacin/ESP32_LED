@@ -2,6 +2,14 @@
 #define EFFECT_CONTROL_H
 
 #include "led_effects.h"
+#include "state_manager.h"
+
+/**
+ * @brief Função para manipulação de mudança de efeito, a ser chamada pelas APIs.
+ * @param effect_type Tipo de efeito a ser definido.
+ * @param speed Velocidade do efeito.
+ */
+void handle_on_off_change_command (effect_status_t is_on);
 
 /**
  * @brief Função para manipulação de mudança de efeito, a ser chamada pelas APIs.

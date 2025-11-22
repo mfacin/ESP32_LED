@@ -11,24 +11,24 @@
 #include "app_config.h"
 
 void stationary_color (app_state_t *current_state, hsv_color_t color) {
-	current_state->current_effect.type = EFFECT_STATIONARY;
 	current_state->current_color = color;
 }
 
 void effect_fade (app_state_t *current_state) {
-	current_state->current_effect.type = EFFECT_FADE;
 	// "Gira" a matiz de grau em grau
 	current_state->current_color.h = fmod(current_state->current_color.h + 1, 360);
 }
 
 void effect_strobe (app_state_t *current_state) {
-	current_state->current_effect.type = EFFECT_STROBE;
 	// "Gira" a matiz em 60º
-	current_state->current_color.h = fmod(current_state->current_color.h + 60, 360);
+	// (int) (floor(current_state->current_color.h / 60) * 60) garante que será somente de 60 em 60
+	current_state->current_color.h = fmod((int) (floor(current_state->current_color.h / 60) * 60) + 60, 360);
 }
 
 void effect_breath(app_state_t *current_state) {
-	current_state->current_effect.type = EFFECT_BREATH;
+	// Garantindo que a cor esteja em algum setor de 60 em 60
+	current_state->current_color.h = fmod((int) (floor(current_state->current_color.h / 60) * 60), 360);
+	
 	float step_base = (float) current_state->current_effect.direction / (float) BREATH_EFFECT_STEPS;
 	// Multiplicar pelo max_value permite que o efeito mantenha a mesma velocidade
 	current_state->current_color.v += step_base * current_state->max_value;
