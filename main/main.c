@@ -17,6 +17,8 @@
 #include "app_config.h"
 #include "state_manager.h"
 #include "effect_handlers.h"
+#include "wifi_config.h"
+#include "http_server.h"
 
 /// @brief Estrutura para armazenamento dos delays dos efeitos.
 typedef struct {
@@ -110,5 +112,9 @@ void app_main (void) {
 	configure_ledc();
 	state_manager_init();
 
+	// Prioridade 4 garante que o HTTP tenha maior prioridade (5)
 	xTaskCreate(main_loop_task, "main_loop_task", 4096, NULL, 4, NULL);
+
+	wifi_init_station();
+	http_server_start();
 }

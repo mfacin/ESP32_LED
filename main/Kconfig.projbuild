@@ -1,0 +1,13 @@
+menu "Wi-Fi SSID and password"
+    config WIFI_SSID
+        string "Wi-Fi SSID"
+        default "WIFI_SSID"
+        help
+            Wi-Fi SSID.
+
+    config WIFI_PASSWD
+        string "Wi-Fi password"
+        default "WIFI_PASSWD"
+        help
+            Wi-Fi password.
+endmenu

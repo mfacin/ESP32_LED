@@ -72,4 +72,15 @@
 /// @brief Chave para o status de ON/OFF.
 #define NVS_KEY_ONOFF	"onoff"
 
+/// @brief SSID da rede Wi-Fi a ser conectada.
+/// @note Verifique que o arquivo /main/Kconfig.projbuild contém as definições de configuração das opções WIFI_SSID e WIFI_PASSWD.
+/// @note Essas configurações podem ser definidas nas chaves CONFIG_WIFI_SSID e CONFIG_WIFI_PASSWD no arquivo /sdkconfig
+#define WIFI_SSID		CONFIG_WIFI_SSID
+/// @note Verifique que o arquivo /main/Kconfig.projbuild contém as definições de configuração das opções WIFI_SSID e WIFI_PASSWD.
+/// @note Essas configurações podem ser definidas nas chaves CONFIG_WIFI_SSID e CONFIG_WIFI_PASSWD no arquivo /sdkconfig
+/// @brief Senha da rede Wi-Fi a ser conectada.
+#define WIFI_PASS		CONFIG_WIFI_PASSWD
+/// @brief Número máximo de tentativas de conexão à rede Wi-Fi.
+#define WIFI_MAX_RETRY	10
+
 #endif
