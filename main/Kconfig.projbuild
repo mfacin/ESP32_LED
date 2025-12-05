@@ -10,4 +10,22 @@ menu "Wi-Fi SSID and password"
         default "WIFI_PASSWD"
         help
             Wi-Fi password.
+    
+    config GPIO_LED_RED
+        int "Red LED GPIO number"
+        default 16
+        help
+            GPIO number associated with red LED.
+    
+    config GPIO_LED_GREEN
+        int "Green LED GPIO number"
+        default 18
+        help
+            GPIO number associated with green LED.
+    
+    config GPIO_LED_BLUE
+        int "Blue LED GPIO number"
+        default 21
+        help
+            GPIO number associated with blue LED.
 endmenu

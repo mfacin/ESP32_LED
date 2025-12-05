@@ -29,11 +29,11 @@
 #define BLUE_GAMMA_CORRECTION	(0.31)
 
 /// @brief Configuração de GPIO do LED vermelho.
-#define RED_GPIO	(25)
+#define RED_GPIO	CONFIG_GPIO_LED_RED
 /// @brief Configuração de GPIO do LED verde.
-#define GREEN_GPIO	(26)
+#define GREEN_GPIO	CONFIG_GPIO_LED_GREEN
 /// @brief Configuração de GPIO do LED azul.
-#define BLUE_GPIO	(27)
+#define BLUE_GPIO	CONFIG_GPIO_LED_BLUE
 
 /// @brief Configuração de canal do LEDC do LED vermelho.
 #define RED_CHANNEL		LEDC_CHANNEL_0
